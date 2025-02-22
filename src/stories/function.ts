@@ -63,22 +63,22 @@ export function getRacetracksByCountry(data:any){
                 // inic=racetracks[i].rid_pista; -- esta varible no se envia nunca a una funcion
             // }  
             
-            var pais=racetracks[i].rpais;
-            var hipo=racetracks[i].rnombre;
-            var ti= Math.floor(racetracks[i].falta/60);
-            var crr=racetracks[i].rcarrera;
-            var tipo = racetracks[i].rtipo;
-            var id_tr= racetracks[i].rid_pista;
-            var id_cr= racetracks[i].idcrr;
-            var rtack = racetracks[i].rtrack;
+            var country=racetracks[i].rpais;
+            var trackName=racetracks[i].rnombre;
+            var minutesLeft= Math.floor(racetracks[i].falta/60);
+            var raceNumber=racetracks[i].rcarrera;
+            var raceType = racetracks[i].rtipo;
+            var trackId= racetracks[i].rid_pista;
+            var radeId= racetracks[i].idcrr;
+            var track = racetracks[i].rtrack;
 
-            agrego_hip_pais(pais,hipo,ti,crr,tipo,id_tr,id_cr,rtack);
+            agrego_hip_pais(country,trackName,minutesLeft,raceNumber,raceType,trackId,radeId,track);
             
             if (racetracks[i].rtipo===1){ // -- esto de aqui sirve para contar la cantidad de caballos, galgos y carretas
                 // console.log("tipo1: ", tipo)
-                contador1 = contador1 + tipo;
-                // $("#badge_caballo").html(contador1);
-                console.log("Contador 1", contador1);
+                // contador1 = contador1 + tipo;
+                // // $("#badge_caballo").html(contador1);
+                // console.log("Contador 1", contador1);
                 
                 // agrego_hip(pais,hipo,ti,crr,tipo,id_tr,id_cr,rtack);
                 // agrego_hip_pais(pais,hipo,ti,crr,tipo,id_tr,id_cr,rtack);
@@ -101,15 +101,15 @@ export function getRacetracksByCountry(data:any){
             }
             if(racetracks[i].rtipo===2){
                 // console.log("tipo2: ", tipo)
-                contador2 =  contador2 + tipo-1;
-                console.log("Contador 2: ", contador2);
+                // contador2 =  contador2 + tipo-1;
+                // console.log("Contador 2: ", contador2);
                 
                 // $("#badge_carretas").html(contador2);
             }
             if(racetracks[i].rtipo===3){
                 // console.log("tipo3: ", tipo)
-                contador3 = contador3 + tipo-2;
-                console.log("Contador 3: ", contador3);
+                // contador3 = contador3 + tipo-2;
+                // console.log("Contador 3: ", contador3);
                 // $("#badge_galgo").html(contador3);
             }
  
