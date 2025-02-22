@@ -1,0 +1,457 @@
+.uhorses * {
+  color: #fff;
+  // background-color: #000;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body{
+  background-color: #000;
+}
+.header{
+  background-color: red;
+}
+.uhorses{
+  & .ipt{
+    font-family: inherit;
+    font-size: inherit;
+    border: 1px solid transparent;
+    color: #fff;
+    background-color: #8CA48D;
+    width: 100%;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    &.search{
+      background-color: #252525;
+      width: 100%;
+      color: inherit;
+      background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='11' cy='11' r='7' fill='none' stroke='%23fff' stroke-width='2'/><line x1='20' y1='23' x2='15' y2='17' stroke='%23fff' stroke-width='2'/></svg>");
+      background-repeat: no-repeat;
+      background-size: 18px 18px;
+      padding-right: 2rem;
+      background-position: right 0.5rem center;
+    }
+    &.data{
+      border-radius: 0;
+      padding: 0 0.5rem;
+    }
+  }
+  & .dropdown{
+    position: relative;
+  }
+  & .limit{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 1rem 1rem 1rem;
+    & .limit-title{
+      text-align: center;
+    }
+    & .limit-ap{
+      text-align: center;
+       display: grid;
+       grid-template-columns: repeat(3, auto);
+       background-color: #006E4F;
+       border-radius: 0.25rem;
+       gap: 0.25rem;
+       padding: 0.5rem;
+    }
+    & .limit-footer{
+      // text-align: center;
+    }
+  }
+  & .betslip{
+    &__container{
+      &--title{
+        display: grid;
+        grid-template-columns: 2rem 1fr 2rem;
+        text-align: center;
+        padding: 0.2rem 0;
+        background-color: #006E4F;
+        align-items: center;
+        justify-content: space-around;
+        text-transform: uppercase;
+      }
+    }
+    &__bets{
+      max-height: 75vh;
+      min-height: 75vh;
+      background-color: #C4D3C6;
+      display: flex;
+      flex-direction: column;
+      border-radius: 10px;
+      gap: 0.25rem;
+      overflow: auto;
+    }
+    &__title{
+      color: #fff;
+    }
+    &__trash{
+      color: red;
+      cursor: pointer;
+    }
+  }
+  & .race{
+    background: #030303;
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    &__nrace{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      & img{
+        display: none;
+      }
+    }
+    &__num{
+      position: absolute;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    &__container{
+      &-races{
+        max-height: 53vh;
+        overflow: auto;
+        text-align: center;
+      }
+    }
+    &__wps{
+      display: grid;
+      grid-template-columns:10% 10% 10% 5% 22% 18% 8% 6% 6%;
+      gap: 0.25rem;
+      justify-content: center;
+      padding: 0.4rem 0;
+      text-align: center;
+      align-items: center;
+      border-bottom: 1px solid #000;
+      &.titles{
+        color: #000;
+        background-color: #E8E8E8;
+        font-size: 15px;
+        font-weight: 500;
+        div {
+          color: #000;
+        }
+      }
+    }
+    & .race__wps{
+      grid-template-columns: 12% 12% 8% 22% 20% 7% 7% 7%;
+    }
+    &__type{
+      &-bet{
+        display: flex;
+        gap: 0.25rem;
+      }
+    }
+    &__data{
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      & img{
+        width: 2rem;
+      }
+    }
+    &__time{
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+      &-programs{
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.5rem;
+        align-items: center;
+      }
+    }
+    &__programs{
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    &__start{
+      &-in{
+        color: #e0ae3f;
+      }
+    }
+    &__nraces {
+      display: grid;
+      grid-template-columns:  auto 1fr;
+      gap: 0.5rem;
+      align-items: center;
+      &--active{
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+    }
+  }
+  & .filter__countries{
+      display: grid;
+      justify-content: center;
+      padding: 0.5rem;
+      gap: 0.25rem;
+  }
+  & .btn{
+    cursor: pointer;
+    font-size: inherit;
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid transparent;
+    color: #000;
+    background-color: #C4D3C6;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    &.type{
+      &-bet{
+        width: 5.5rem;
+        &.active{
+          color: #fff;
+          background: #026450;
+        }
+      }
+    }
+    &.nrace{
+      width: 2rem;
+      padding: 0.25rem;
+      background: #C4D3C6;
+      &.active{
+        color: #fff;
+        background: #026450;
+      }
+    }
+    &.option{
+      height: 2.5rem;
+      background-color: #4e4e4e;
+      &.notification{
+        position: relative;
+        & .autoservice__count{
+          position: absolute;
+          top: 3px;
+          border-radius: 100%;
+          width: 18px;
+          background-color: transparent;
+          font-size: 12px;
+          right: 3px;
+          pointer-events: none;
+          padding: 0;
+          text-align: center;
+        }
+      }
+    }
+
+    &.race{
+      height: 4rem;
+      padding: 0.25rem;
+      font-size: 10px;
+      display: grid;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 1px solid #002C23;
+      background: #E0FBE1;
+      & img{
+        width: 2.8rem;
+      }
+      div{
+        color: #002C23;
+      }
+        &.active{
+          background: #002C23;
+        }
+    }
+    &.filter{
+      color: #fff;
+      padding: 0.25rem;
+      background-color: #006E4F;
+      border-radius: 0;
+      &::after{
+        display: inline-block;
+        margin-left: 0.4rem;
+        content: "";
+        border-top: 0.35rem solid;
+        border-right: 0.35rem solid transparent;
+        border-bottom: 0;
+        border-left: 0.35rem solid transparent;
+        vertical-align: middle;
+      }
+    }
+  }
+  height: 100vh;
+  display: grid;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  grid-template-rows: 3rem calc(100vh - 3.2rem);
+  gap: 0.2rem;
+  font-size: 14px;
+  background-color: #030303;
+  // background: #000;
+
+  & .dropdown{
+    &-menu{
+      position: absolute;
+      z-index: 1056;
+      display: none;
+      min-width: 100%;
+      margin: 0;
+      text-align: left;
+      list-style: none;
+      background-color: #444;
+      background-clip: padding-box;
+      border-radius: 0.25rem;
+      &.show{
+        display: block;
+      }
+    }
+  }
+  & .pulse{
+    animation-name: pulse;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    display: inline-block;
+    font-weight: 600;
+  }
+  & .upcoming{
+    &__img{
+      width: 2rem;
+    }
+    &__title{
+      text-align: center;
+      background-color: #006F4F;
+      padding: 0.25rem;
+      font-weight: 500;
+    }
+    &__races{
+      display: grid;
+      grid-template-columns: 50% 50%;
+      background-color: #252525;
+      overflow: auto;
+      max-height: 14vh;
+    }
+    &__race{
+      background: #C4D3C6;
+      display: grid;
+      grid-template-columns: 2.5rem 1fr 4rem 5rem;
+      align-items: center;
+      gap: 0.25rem;
+      border: 1px solid #000;
+      height: 3rem;
+      padding: 0.5rem;
+      cursor: pointer;
+      p,div {
+        color: #000;
+      }
+      &:hover{
+        p,div{
+          color: #fff;
+        }
+        background-color: #026450; 
+      }
+    }
+  }
+
+  & .racetrack{
+    height: 60vh;
+    overflow: auto;
+    &__img{
+      width: 2rem;
+    }
+    &__event{
+      display: grid;
+      grid-template-columns: 3.7rem 1fr 1.5rem;
+      align-items: center;
+      text-align: center;
+      gap: 0.25rem;
+      padding: 0.25rem;
+      &.title{
+        background-color: #444444;
+      }
+      &.racetr{
+        color: #000;
+        background-color: #C4D3C6;
+        cursor: pointer;
+        border-bottom: 1px solid grey;
+        div{
+          color: #002C23;
+        }
+        &:hover{
+          div{
+            color: #fff;
+          }
+          background-color: #026450 ;
+        }
+      }
+      &.name{
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+    }
+    &__bycountry{
+      border: 1px solid #000;
+      display: grid;
+      grid-template-columns: 25% 60% 15%;
+      align-items: center;
+      justify-content: center;
+      // padding: 0 !important;
+      background-color: #002C23;
+      // box-shadow: inset 0px -150px 40px -112px rgba(0, 0, 0, 0.7);
+      height: 3rem;
+      font-weight: 500;
+    }
+  }
+
+  & .collapse{
+    &:not(.show){
+      display: none;
+    }
+  }
+
+  & .header{
+    display: grid;
+    grid-template-columns: calc(20% - 0.25rem) 60% calc(20% - 0.25rem);
+    background-color: #343434;
+    height: 3rem;
+    gap: 0.25rem;
+    background-color: #343434;
+    & .currency{
+      color: red;
+    }
+    &__text{
+      padding: 0 0.5rem;
+      background-color: #4a4a4a;
+      font-weight: 600;
+    }
+    &__logo{
+      display: flex;
+      justify-content:center;
+      align-items:center;
+    }
+    &__options{
+      display:grid;
+      grid-template-columns: auto auto;
+      align-items: center;
+      gap: 0.25rem;
+      &--center{
+        display: grid;
+        align-items: center;
+        grid-template-columns: repeat(6,10%) 1fr 1fr;
+        gap: 0.25rem;
+      }
+    }
+  }
+  & .main{
+    display: grid;
+    grid-template-columns: calc(20% - 0.25rem) 60% calc(20% - 0.25rem);
+    gap: 0.25rem;
+    &__left{
+      display: grid;
+      grid-template-columns: 25% 75%;
+    }
+    &__center{
+      height: fit-content;
+      background-color: #3e3e3e;
+    }
+  }
+}
