@@ -2,7 +2,7 @@ let tempCountryArray: {
     tipo: number;
     paises: {
       pais: string;
-      cantidad: number;
+    //   cantidad: number;
       carreras?: {
         name_pista: any;
         time: number;
@@ -99,7 +99,7 @@ export function getAmountOfRaceByType(){
     };
 
     for(let typeEntry of countryArray){
-        let typeCount = typeEntry.paises.reduce((acc, country) => acc + (country.cantidad || 0), 0);
+        let typeCount = typeEntry.paises.reduce((acc, country) => acc + (country.carreras? country.carreras.length : 0), 0);
 
         if(typeEntry.tipo === 1){
             totalRacesByType.type1 = typeCount;
@@ -119,19 +119,19 @@ function agrego_hip_pais(pais: string, name_pista: any, time: number, crr: any, 
 
     let existingType = tempCountryArray.find(entry => entry.tipo === tipo)!;
     
-    let existingCountry = existingType.paises.find((entry: { pais: string; cantidad: number; carreras?: any[] }) => entry.pais === pais);
+    let existingCountry = existingType.paises.find((entry: { pais: string; carreras?: any[] }) => entry.pais === pais);
 
     if(!existingCountry){
         existingType.paises.push({
             pais, 
-            cantidad: 1,
+            // cantidad: 1,
             carreras: [nuevaCarrera]
         });
     }
     else{
         existingCountry.carreras = existingCountry.carreras || [];
         existingCountry.carreras.push(nuevaCarrera);
-        existingCountry.cantidad++;
+        // existingCountry.cantidad++;
     }
 
     
