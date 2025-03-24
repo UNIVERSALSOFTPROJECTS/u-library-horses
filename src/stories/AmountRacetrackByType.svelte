@@ -6,10 +6,34 @@
     import { getAmountOfRaceByType } from './function.js';
     import './main.scss';
     let totalRaces = $state(getAmountOfRaceByType());
+    let usr = "";
+    let pass = "";
+    let errorMessage = "";
+
+    async function login() {
+      errorMessage = ""
+
+      const response = await fetch("/login", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({usr, pass})
+      });
+
+      const data = await response.json();
+
+      if(data.success){
+        console.log("login exitoso", data.message);
+        
+      }else{
+        errorMessage = "credenciales incorrectas";
+      }
+    }
 
     $effect(() =>{
         totalRaces = getAmountOfRaceByType();
     });
+
+    
 </script>
 
 <div class="uhorses" >
@@ -28,4 +52,14 @@
             <div class="" bis_skin_checked="1">
       </div>
       </div>
+
+      <form on:submit|preventDefault={login}>
+        <input class="usr" type="text" bind:value={usr} placeholder="usuario" required >
+        <input class="pass" type="password" bind:value={pass} placeholder="contrania" required>
+      </form>
+
+      {#if errorMessage}
+        <p style="color: red;">{errorMessage}</p>
+      {/if}
+      
 </div>

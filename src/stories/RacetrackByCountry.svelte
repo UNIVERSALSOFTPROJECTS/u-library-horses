@@ -14,7 +14,8 @@
     // });
   
     import { onDestroy } from 'svelte';
-	import { error } from '@sveltejs/kit';
+	  import { error } from '@sveltejs/kit';
+    import { API_BASE_URL } from '../lib/api.js';
 
     let raceByType = {type1: 0, type2: 0, type3: 0};
     let ws: WebSocket | null = null;
@@ -48,7 +49,6 @@
         console.log("ws desconectado...");
         
       }
-
     }
     
     connectWebScoket();
@@ -56,6 +56,28 @@
     onDestroy(() => {
         if (ws) ws.close();
     });
+
+    import { loginWithCredential } from '../lib/api/services/neco/neco.service.js';
+
+    let usr = "";
+    let pass = "";
+    let message = "";
+    let isError = false;
+
+    async function login() {
+      message = "";
+      isError = false;
+
+      try{
+        const result = await loginWithCredential(usr, pass);
+        message = "login existoso :)"
+
+      } catch(err){
+        isError = true;
+        message = "Error al loguearse"
+      }
+      
+    }
     
   </script>
 
@@ -64,6 +86,16 @@
     <p>Tipo 2: {raceByType.type2}</p>
     <p>Tipo 3: {raceByType.type3}</p>
   </div>
+
+  <form on:submit|preventDefault={login}>
+    <input class="usr" type="text" style="color: black;" bind:value={usr} placeholder="usuario" required >
+    <input class="pass" type="password" style="color: black;" bind:value={pass} placeholder="contrania" required>
+    <button type="submit">iniciar sesion</button>
+  </form>
+
+  {#if message}
+    <p style="color: {isError ? 'red' : 'green'};">{message}</p>
+  {/if}
   
   <!-- <div class="uhorses" > -->
     <!-- <div class='main'> -->
