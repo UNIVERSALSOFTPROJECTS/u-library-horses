@@ -22,30 +22,13 @@ $path="betapi/bet_api.php";
 //$path="n19c/opt/betapi/bet_api.php";
 
 if ($accion==='ini'){
-    $rand = rand(8750, 8753);	#cambiar a 8755
+hjons
+if (isset($_POST['tipo'])){ 
 
-if (isset($_POST['tipo'])){
-	//$serv_li = "universalhorse.club:10101";
         $serv_li = "bws2.miapuesta.vip";
         
 }else{
-    if ($_SESSION['server']!='1028'){
-	    //$serv_li = "admin.universalrace.net:$rand";
-            //if($_SESSION['id_ca'] =='6495'){
-            //    $serv_li = "ws.universalhorse.club:52000";
-            //}else{
-            //    $serv_li = "ws.universalhorse.club:$rand";
-            //}
-            //$serv_li = "bws2.miapuesta.vip";
-            $serv_li = "bws2.universalrace.net";
-	    
-    }else{
-           //$serv_li = "testws.miapuesta.vip"; 
-            $serv_li = "bws2.universalrace.net";
-           //$serv_li = "bws2.miapuesta.vip";
-	   //$serv_li = "ws.universalhorse.club:$rand";
-	   #$serv_li = "admin.universalrace.net:$rand";
-    }
+    $serv_li = "bws2.universalrace.net";
 }
 	
 	//$serv_li = "185.144.157.19:$rand";
