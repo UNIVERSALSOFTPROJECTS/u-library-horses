@@ -9,72 +9,124 @@
   let user = $state<{ name: string }>();
   getRacetracksByCountry(data);
 
+  //RETORNO DE HIPODROMOS ACTIVOS DESDE NECO
+  import { getHipodromosPorTipo } from '../lib/api/services/necoHipodromosPorTipo.service.js';
+  import type { HipodromosPorTipoResponse } from '../lib/api/models/NecoHipodromosPorTipoResponse.js';
+  import { userSession } from '../lib/api/stores/userLogin.js';
+  import { onMount } from 'svelte';
 
-  let allCountries = $state<{ pais: string; cantidad: number; carreras?: any[] }[]>([]);
-  $effect(() => {
-    allCountries = countryArray.flatMap((typeEntry: { tipo: number; paises: { pais: string; cantidad: number; carreras?: any[] }[] }) => typeEntry.paises);
-  });
+  let hipodromos= $state<HipodromosPorTipoResponse[]>([]);
+  let errorCarga = $state('')
 
+  onMount(async () =>{
+      if($userSession){
+        try{
+          hipodromos = await getHipodromosPorTipo($userSession.token, $userSession.tp_usuario);
+          console.log('Hipodromos activos: ', hipodromos);
+          console.log('Guardando en store:', ($userSession.token, $userSession.tp_usuario));
+        } catch(err){
+          errorCarga = 'Error alobtener lo hipodromos... :c';
+          console.log(err);
+          
+        }
+      } else{
+        errorCarga = 'no hay sesion activa';
+        console.warn('No se encontro sesion.');
+        
+      }
+  })
   
+  let cantidadCaballos = $derived(() => hipodromos.find(h => h.tipo === 1)?.cantidad_tipo ?? 0);
+  let cantidadGalgos = $derived(() => hipodromos.find(h => h.tipo === 2)?.cantidad_tipo ?? 0);
+  let cantidadCarretas = $derived(() => hipodromos.find(h => h.tipo === 3)?.cantidad_tipo ?? 0);
+  let tipoSeleccionado = $state<number>(1); // Por defecto: 1 = caballos
+
 </script>
 
 <div class="uhorses" >
   <Header></Header>
   <div class='main'>
     <section>
+      <!-- comienza el seccion de left -->
     <section class='main__left'>
-      <!-- <div class="main__left" bis_skin_checked="1"> -->
-          <div class="" bis_skin_checked="1">
-            <div class="btn race active"  bis_skin_checked="1"><span id="badge_caballo">22</span><img src="https://www.universalhorse.club/img/iconos/caballos001.png" alt=""></div>
-            <div class="btn race"  bis_skin_checked="1"><span id="badge_galgo">-</span><img src="https://www.universalhorse.club/img/iconos/galgo01.png" alt=""></div>
-            <div class="btn race"  bis_skin_checked="1"><span id="badge_carretas">16</span><img src="https://www.universalhorse.club/img/iconos/carreta01.png" alt=""></div>
-            <div class="btn race" bis_skin_checked="1"><img src="https://www.universalhorse.club/img/iconos/jackpolla01.png" alt=""></div>
-            <div class="btn race" bis_skin_checked="1"><img src="https://www.universalhorse.club/img/iconos/reloj01.png" alt=""><div bis_skin_checked="1"></div></div>
-            <div class="btn race" bis_skin_checked="1"><img src="https://www.universalhorse.club/img/iconos/caballos_retirado.png" alt=""><div bis_skin_checked="1">Retirados</div></div>
-            <div class="btn race" bis_skin_checked="1"><img src="https://www.universalhorse.club/img/iconos/resultados.png" alt=""><div bis_skin_checked="1">Programas</div></div>
-            <div class="btn race" bis_skin_checked="1"><img src="https://www.universalhorse.club/img/iconos/engranaje01.png" alt=""><div bis_skin_checked="1">Resultados</div></div>
-            <div class="btn race" bis_skin_checked="1"><img src="https://www.universalhorse.club/img/iconos/engranaje01.png" alt=""></div>
+          <div class="" >
+            <!-- DIV PARA CABALLOS -->
+            <div 
+              class="btn race {tipoSeleccionado === 1 ? 'active' : ''}"
+              on:click={() => tipoSeleccionado = 1}
+              on:keydown={(e) => (e.key === "Enter" || e.key === '') && (tipoSeleccionado = 1)}
+              role="button"
+              tabindex="0" >
+              <span id="badge_caballo">{cantidadCaballos()}</span>
+              <img src="https://www.universalhorse.club/img/iconos/caballos001.png" alt="">
+            </div>
+            
+            <!-- DIV PARA GALGOS -->
+            <div 
+              class="btn race {tipoSeleccionado === 2 ? 'active' : ''}"
+              on:click={() => tipoSeleccionado = 2}
+              on:keydown={(e) => (e.key === "Enter" || e.key === '') && (tipoSeleccionado = 2)}
+              role="button"
+              tabindex="0">
+              <span id="badge_galgo">{cantidadGalgos()}</span>
+              <img src="https://www.universalhorse.club/img/iconos/galgo01.png" alt="">
+            </div>
+            
+            <div class="btn race 
+              {tipoSeleccionado === 3 ? 'active' : ''}"
+              on:click={() => tipoSeleccionado = 3}
+              on:keydown={(e) => (e.key === "Enter" || e.key === '') && (tipoSeleccionado = 3)}
+              role="button"
+              tabindex="0">
+              <span id="badge_carretas">{cantidadCarretas()}</span>
+              <img src="https://www.universalhorse.club/img/iconos/carreta01.png" alt="">
+            </div>
+            
+            <div class="btn race" ><img src="https://www.universalhorse.club/img/iconos/jackpolla01.png" alt=""></div>
+            <div class="btn race" ><img src="https://www.universalhorse.club/img/iconos/reloj01.png" alt=""><div ></div></div>
+            <div class="btn race" ><img src="https://www.universalhorse.club/img/iconos/caballos_retirado.png" alt=""><div >Retirados</div></div>
+            <div class="btn race" ><img src="https://www.universalhorse.club/img/iconos/resultados.png" alt=""><div >Programas</div></div>
+            <div class="btn race" ><img src="https://www.universalhorse.club/img/iconos/engranaje01.png" alt=""><div >Resultados</div></div>
+            <div class="btn race" ><img src="https://www.universalhorse.club/img/iconos/engranaje01.png" alt=""></div>
           </div>
 
-          <div class="" bis_skin_checked="1">
+          <div class="" >
 
             <input type="search" class="ipt search t_srch-race" id="race_search" placeholder="Race search" autocomplete="off">
      
-            <div class="dropdown" bis_skin_checked="1">
+            <div class="dropdown" >
               <button class="btn filter t_fl-countries" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">Filter countries</button>
-              <div class="dropdown-menu" bis_skin_checked="1">
-                <div class="filter__countries" id="filter_countries" bis_skin_checked="1">
-      <!-- <div bis_skin_checked="1">
-        <input type="checkbox" id="filter_country_CHL">
-        <label for="filter_country_CHL">Chile</label>
-      </div> -->
-     
+              <div class="dropdown-menu" >
+                <div class="filter__countries" id="filter_countries" >
     </div>
               </div>
             </div>
              
             <!-- comienza el div de paises x carrera  -->
-            <div class="racetrack" id="hip_pais" bis_skin_checked="1">
-              {#each allCountries as country, countryIndex}
+            {#each hipodromos.filter(h => h.tipo === tipoSeleccionado) as tipoData}
+            <div class="racetrack" id="hip_pais">
+              
+              {#each tipoData.paises as country, countryIndex}
       <button class="btn racetrack__bycountry" data-bs-toggle="collapse" data-bs-target={`#collapse${countryIndex}`} id="racetrack_CHL" style="" aria-controls={`collapse${countryIndex}`}>
         <img class="racetrack__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/{country.pais.toLowerCase()}.png" alt="chl-img">
         <p>{country.pais}</p>
         <span class="racetrack__number" id="cont_CHL">{country.cantidad}</span>
       </button>
-      <div class="collapse" id={`collapse${countryIndex}`} bis_skin_checked="1">
-        <div class="racetrack__event title" bis_skin_checked="1">
-          <div class="t_time" bis_skin_checked="1">Time</div>
-          <div class="t_racetrack" bis_skin_checked="1">Racetrack</div>
-          <div bis_skin_checked="1">#</div> 
+      <div class="collapse" id={`collapse${countryIndex}`}>
+        <div class="racetrack__event title" >
+          <div class="t_time" >Time</div>
+          <div class="t_racetrack" >Racetrack</div>
+          <div >#</div> 
         </div>
-        <div id="hip_collapse_CHL" bis_skin_checked="1">
+        <div id="hip_collapse_CHL" >
         
           <!-- comienza div de carreras  -->
-          {#each (country.carreras ??[] ) as carrera, raceIndex(carrera.id || raceIndex)}
-    <div id="id_hip_{countryIndex}_{raceIndex}" class="racetrack__event racetr"  bis_skin_checked="1">
-      <div class="id_mnu_crr_551" bis_skin_checked="1">{carrera.time} Seg</div> 
-      <div class="name" bis_skin_checked="1">{carrera.name_pista}</div>
-      <div bis_skin_checked="1">{carrera.crr}</div> 
+          {#each (country.carreras ??[] ) as carrera, raceIndex(carrera.id_pista || raceIndex)}
+    <div id="id_hip_{countryIndex}_{raceIndex}" class="racetrack__event racetr" >
+      <div class="id_mnu_crr_551" >{carrera.tiempo_restante} Seg</div> 
+      <div class="name" >{carrera.nombre_pista}</div>
+      <div >R##</div> 
+      <!-- <div >{carrera.crr}</div>  -->
     </div>
     {/each}
     <!-- termina div de carreras  -->
@@ -82,12 +134,15 @@
       </div>
      {/each}
       </div>
+      {/each}
       <!-- termina el div de pais y carrera x pais  -->
     </div>
 
           
         <!-- </div> -->
     </section>
+    <!-- termina el section de left -->
+
     <div class="limit" bis_skin_checked="0">
           <div class="limit-title" bis_skin_checked="0">Limite de apuestas(USD )</div>
           <div class="limit-ap" bis_skin_checked="0">
@@ -107,6 +162,7 @@
           </div>
         </div>
     </section>
+    <!-- termina el section de left2 -->
     
     <section class='main__center'>
 <!-- <div class="panel__center" bis_skin_checked="1"> -->
@@ -1208,26 +1264,4 @@
 </section>
     </section>
   </div>
-</div>
-
-<div class="accordion" id="accordionExample">
-  {#each allCountries as country, countryIndex}
-    <div class="accordion-item">
-      <!-- <h2 class="accordion-header"> -->
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#collapse${countryIndex}`} aria-expanded="false" aria-controls={`collapse${countryIndex}`}>
-          carreras: {country.pais} - cantidad: {country.cantidad}
-        </button>
-      <!-- </h2> -->
-      <div id={`collapse${countryIndex}`} class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-        <div class="accordion-body">
-          <strong>Carreras en {country.pais}:</strong>
-          <ul>
-            {#each (country.carreras ??[] ) as carrera}
-              <li>Time: {carrera.time} - Racetrack: {carrera.name_pista} - #: {carrera.crr}</li>
-            {/each}
-          </ul>
-        </div>
-      </div>
-    </div>
-  {/each}
 </div>
