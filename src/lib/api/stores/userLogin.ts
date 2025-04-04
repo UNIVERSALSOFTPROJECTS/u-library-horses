@@ -7,10 +7,10 @@ export interface UserSession{
     simbolo: string,
 }
 
-const stored = localStorage.getItem('userSession');
-const initial = stored? JSON.parse(stored) as UserSession : null;
+// const stored = localStorage.getItem('userSession');
+// const initial = stored? JSON.parse(stored) as UserSession : null;
 
-export const userSession = writable<UserSession | null>(initial);
+export const userSession = writable<UserSession | null>(null);
 
 userSession.subscribe(value =>{
     if(value){

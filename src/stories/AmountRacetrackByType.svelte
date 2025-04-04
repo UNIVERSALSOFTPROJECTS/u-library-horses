@@ -5,11 +5,9 @@
     import 'bootstrap/dist/js/bootstrap.bundle.min.js';
     import { getAmountOfRaceByType } from './function.js';
     import './main.scss';
-    import { getHipodromosActivos } from '../lib/api/services/necoHipodromosActivos.service.js';
     import { getHipodromosPorTipo } from '../lib/api/services/necoHipodromosPorTipo.service.js';
     import { userSession } from '../lib/api/stores/userLogin.js';
 	  import { onMount } from 'svelte';
-	  import type { NecoHipodromosActivosResponse } from '../lib/api/models/NecoHipodromosActivosResponse.js';
     import type { HipodromosPorTipoResponse } from '../lib/api/models/NecoHipodromosPorTipoResponse.js';
   let totalRaces = $state(getAmountOfRaceByType());
 
