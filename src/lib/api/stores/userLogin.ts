@@ -5,12 +5,13 @@ export interface UserSession{
     token: string,
     tp_usuario: string,
     simbolo: string,
+    balance: number,
 }
 
-// const stored = localStorage.getItem('userSession');
-// const initial = stored? JSON.parse(stored) as UserSession : null;
+const stored = localStorage.getItem('userSession');
+const initial = stored? JSON.parse(stored) as UserSession : null;
 
-export const userSession = writable<UserSession | null>(null);
+export const userSession = writable<UserSession | null>(initial);
 
 userSession.subscribe(value =>{
     if(value){

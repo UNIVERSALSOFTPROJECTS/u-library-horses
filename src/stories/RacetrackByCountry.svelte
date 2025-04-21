@@ -83,7 +83,8 @@
         nombre: loginData.usuario,
         token: loginData.token,
         tp_usuario: loginData.tipo_usuario,
-        simbolo: loginData.usuario,
+        simbolo: loginData.simbolo,
+        balance: loginData.balance,
       });
       console.log('Guardando en store:', loginData.token, loginData.tipo_usuario);
     } catch (err) {

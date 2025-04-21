@@ -9,11 +9,18 @@
   let user = $state<{ name: string }>();
   getRacetracksByCountry(data);
 
+  //CONEXION DEL WEBSOCKET DESDE EL FRONT
+  import { WebSocketClientService } from '../lib/api/websockets/WebsocketClient.js';
+
+  const socket = new WebSocketClientService("wss://bws2.miapuesta.vip/ws")
+  socket.connect();
   //RETORNO DE HIPODROMOS ACTIVOS DESDE NECO
   import { getHipodromosPorTipo } from '../lib/api/services/necoHipodromosPorTipo.service.js';
   import type { HipodromosPorTipoResponse } from '../lib/api/models/NecoHipodromosPorTipoResponse.js';
   import { userSession } from '../lib/api/stores/userLogin.js';
   import { onMount } from 'svelte';
+	import NavbarComponent from './NavbarComponent.svelte';
+  import { get } from 'svelte/store';
 
   let hipodromos= $state<HipodromosPorTipoResponse[]>([]);
   let errorCarga = $state('')
@@ -41,10 +48,58 @@
   let cantidadCarretas = $derived(() => hipodromos.find(h => h.tipo === 3)?.cantidad_tipo ?? 0);
   let tipoSeleccionado = $state<number>(1); // Por defecto: 1 = caballos
 
-</script>
+  // CALCULAR TIEMPO RESTANTE
+  import { writable } from 'svelte/store';
+  import { calcularTiempoRestante } from '../lib/api/utils/tiempo.js';
+	import { cargarHipodromosDelBackend } from '../lib/api/services/hipodromosService.js';
+	import { hipodromosBase } from '../lib/api/stores/hipodromosBase.js';
 
+  const tiempos = writable<{ [id_pista: number]: string }>({});
+  let intervalo: any;
+
+  function iniciarTemporizador() {
+  intervalo = setInterval(() => {
+    const nuevosTiempos: { [id_pista: number]: string } = {};
+
+    hipodromos.forEach(h => {
+      h.paises?.forEach(p => {
+        p.carreras?.forEach(c => {
+          nuevosTiempos[c.id_pista] = calcularTiempoRestante(c.fepoch);
+        });
+      });
+    });
+
+    tiempos.set(nuevosTiempos);
+  }, 1000);
+}
+
+
+
+onMount(() => {
+  iniciarTemporizador();
+});
+
+// UNION DE HIPODROMOS ENDPOINT Y WEBSOCKET
+onMount(async() =>{
+  const session = get(userSession);
+  if(session?.token && session?.tp_usuario){
+    try{
+      await cargarHipodromosDelBackend(session.token, session.tp_usuario);
+      const hipos = get(hipodromosBase);
+      console.log("Test: hipodromos contienen: ", hipos);
+      
+    } catch(error){
+      console.error("Error probando cargarHipodromos del Backend: ", error);
+      
+    }
+  } else{
+    console.warn('No hay wesion activa para testear hipodromos base.');
+  }
+})
+</script>
+<NavbarComponent></NavbarComponent>
 <div class="uhorses" >
-  <Header></Header>
+  <!-- <Header></Header> -->
   <div class='main'>
     <section>
       <!-- comienza el seccion de left -->
@@ -123,10 +178,11 @@
           <!-- comienza div de carreras  -->
           {#each (country.carreras ??[] ) as carrera, raceIndex(carrera.id_pista || raceIndex)}
     <div id="id_hip_{countryIndex}_{raceIndex}" class="racetrack__event racetr" >
-      <div class="id_mnu_crr_551" >{carrera.tiempo_restante} Seg</div> 
+      <div class="id_mnu_crr_{carrera.id_pista}">
+        {$tiempos[carrera.id_pista] ?? '...'}
+      </div>  
       <div class="name" >{carrera.nombre_pista}</div>
       <div >R##</div> 
-      <!-- <div >{carrera.crr}</div>  -->
     </div>
     {/each}
     <!-- termina div de carreras  -->
@@ -143,22 +199,22 @@
     </section>
     <!-- termina el section de left -->
 
-    <div class="limit" bis_skin_checked="0">
-          <div class="limit-title" bis_skin_checked="0">Limite de apuestas(USD )</div>
-          <div class="limit-ap" bis_skin_checked="0">
-            <div class="nombre_hipodromo" bis_skin_checked="0">Penn National</div>
-            <div class="t_race" bis_skin_checked="0">Race</div>
-            <div class="carrera_actual" bis_skin_checked="0">1</div>
-            <div bis_skin_checked="0">W/P/S</div>
-            <div id="minapwps" bis_skin_checked="0">10</div>
-            <div id="maxapwps" bis_skin_checked="0">100</div>
-            <div bis_skin_checked="0">Exotica</div>
-            <div id="minapexo" bis_skin_checked="0">20</div>
-            <div id="maxapexo" bis_skin_checked="0">200</div>
+    <div class="limit" >
+          <div class="limit-title" >Limite de apuestas(USD )</div>
+          <div class="limit-ap">
+            <div class="nombre_hipodromo" >Penn National</div>
+            <div class="t_race" >Race</div>
+            <div class="carrera_actual" >1</div>
+            <div >W/P/S</div>
+            <div id="minapwps" >10</div>
+            <div id="maxapwps" >100</div>
+            <div >Exotica</div>
+            <div id="minapexo" >20</div>
+            <div id="maxapexo" >200</div>
           </div>
-          <div class="limit-footer" bis_skin_checked="0">
-            <div  bis_skin_checked="0">Monto máximo de pago por carrera:</div>
-            <div bis_skin_checked="0">0.00</div>
+          <div class="limit-footer" >
+            <div  >Monto máximo de pago por carrera:</div>
+            <div >0.00</div>
           </div>
         </div>
     </section>
@@ -166,306 +222,306 @@
     
     <section class='main__center'>
 <!-- <div class="panel__center" bis_skin_checked="1"> -->
-        <div class="upcoming__title" bis_skin_checked="1"><i class="fa-regular fa-clock"></i> <span class="t_upc-races">Upcoming races</span></div>
-        <div class="upcoming__races" id="upcoming_races" bis_skin_checked="1">
-        <div id="id_hip2_23" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div class="upcoming__title" ><i class="fa-regular fa-clock"></i> <span class="t_upc-races">Upcoming races</span></div>
+        <div class="upcoming__races" id="upcoming_races" >
+        <div id="id_hip2_23" class="upcoming__race USA" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Tampa Bay Downs R2</p>
           <p class="pulse">To start</p>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_22" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_22" class="upcoming__race USA" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Gulfstream Park R2</p>
-          <div class="id_mnu_crr_22" bis_skin_checked="1">6 Min</div>
+          <div class="id_mnu_crr_22">6 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_553" class="upcoming__race CHL" bis_skin_checked="1" style="">
+        <div id="id_hip2_553" class="upcoming__race CHL" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/chl.png" alt="chl-img">
           <p class="upcoming__racetrack">Club Hipico Santiago R8</p>
-          <div class="id_mnu_crr_553" bis_skin_checked="1">6 Min</div>
+          <div class="id_mnu_crr_553">6 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_552" class="upcoming__race ARG" bis_skin_checked="1" style="">
+        <div id="id_hip2_552" class="upcoming__race ARG" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/arg.png" alt="arg-img">
           <p class="upcoming__racetrack">Hipodromo de Palermo R1</p>
-          <div class="id_mnu_crr_552" bis_skin_checked="1">12 Min</div>
+          <div class="id_mnu_crr_552" >12 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_40" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_40" class="upcoming__race USA" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Laurel Park R2</p>
-          <div class="id_mnu_crr_40" bis_skin_checked="1">12 Min</div>
+          <div class="id_mnu_crr_40" >12 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_241" class="upcoming__race URU" bis_skin_checked="1" style="">
+        <div id="id_hip2_241" class="upcoming__race URU" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/uru.png" alt="uru-img">
           <p class="upcoming__racetrack">URU Las Piedras R1</p>
-          <div class="id_mnu_crr_241" bis_skin_checked="1">12 Min</div>
+          <div class="id_mnu_crr_241" >12 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_400" class="upcoming__race ENG" bis_skin_checked="1" style="">
+        <div id="id_hip2_400" class="upcoming__race ENG" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/eng.png" alt="eng-img">
           <p class="upcoming__racetrack">UK Southwell R3</p>
-          <div class="id_mnu_crr_400" bis_skin_checked="1">12 Min</div>
+          <div class="id_mnu_crr_400" >12 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_24" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_24" class="upcoming__race USA" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Aqueduct R1</p>
-          <div class="id_mnu_crr_24" bis_skin_checked="1">24 Min</div>
+          <div class="id_mnu_crr_24" >24 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_330" class="upcoming__race SAF" bis_skin_checked="1" style="">
+        <div id="id_hip2_330" class="upcoming__race SAF" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/saf.png" alt="saf-img">
           <p class="upcoming__racetrack">SAF Greyville R7</p>
-          <div class="id_mnu_crr_330" bis_skin_checked="1">27 Min</div>
+          <div class="id_mnu_crr_330" >27 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_397" class="upcoming__race IRE" bis_skin_checked="1" style="">
+        <div id="id_hip2_397" class="upcoming__race IRE" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/ire.png" alt="ire-img">
           <p class="upcoming__racetrack">IRE Dundalk R5</p>
-          <div class="id_mnu_crr_397" bis_skin_checked="1">27 Min</div>
+          <div class="id_mnu_crr_397" >27 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_3" class="upcoming__race PR" bis_skin_checked="1" style="">
+        <div id="id_hip2_3" class="upcoming__race PR" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/pr.png" alt="pr-img">
           <p class="upcoming__racetrack">Camarero Race Track R1</p>
-          <div class="id_mnu_crr_3" bis_skin_checked="1">29 Min</div>
+          <div class="id_mnu_crr_3" >29 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_26" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_26" class="upcoming__race USA" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Oaklawn Park R1</p>
-          <div class="id_mnu_crr_26" bis_skin_checked="1">44 Min</div>
+          <div class="id_mnu_crr_26" >44 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_25" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_25" class="upcoming__race USA" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Fair Grounds R1</p>
-          <div class="id_mnu_crr_25" bis_skin_checked="1">59 Min</div>
+          <div class="id_mnu_crr_25" >59 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_9" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_9" class="upcoming__race USA" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Louisiana Downs R1</p>
-          <div class="id_mnu_crr_9" bis_skin_checked="1">79 Min</div>
+          <div class="id_mnu_crr_9" >79 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_34" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_34" class="upcoming__race USA"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Sunland Park R1</p>
-          <div class="id_mnu_crr_34" bis_skin_checked="1">99 Min</div>
+          <div class="id_mnu_crr_34" >99 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_31" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_31" class="upcoming__race USA"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Santa Anita R1</p>
-          <div class="id_mnu_crr_31" bis_skin_checked="1">164 Min</div>
+          <div class="id_mnu_crr_31" >164 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_21" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_21" class="upcoming__race USA" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Delta Downs R1</p>
-          <div class="id_mnu_crr_21" bis_skin_checked="1">304 Min</div>
+          <div class="id_mnu_crr_21">304 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_27" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_27" class="upcoming__race USA" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Turfway Park R1</p>
-          <div class="id_mnu_crr_27" bis_skin_checked="1">309 Min</div>
+          <div class="id_mnu_crr_27" >309 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_388" class="upcoming__race NZ" bis_skin_checked="1" style="">
+        <div id="id_hip2_388" class="upcoming__race NZ"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/nz.png" alt="nz-img">
           <p class="upcoming__racetrack">New Zealand Ellerslie R1</p>
-          <div class="id_mnu_crr_388" bis_skin_checked="1">337 Min</div>
+          <div class="id_mnu_crr_388" >337 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_456" class="upcoming__race NZ" bis_skin_checked="1" style="">
+        <div id="id_hip2_456" class="upcoming__race NZ"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/nz.png" alt="nz-img">
           <p class="upcoming__racetrack">New Zealand Plymouth R1</p>
-          <div class="id_mnu_crr_456" bis_skin_checked="1">352 Min</div>
+          <div class="id_mnu_crr_456" >352 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_4" class="upcoming__race USA" bis_skin_checked="1" style="">
+        <div id="id_hip2_4" class="upcoming__race USA"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/usa.png" alt="usa-img">
           <p class="upcoming__racetrack">Charles Town R1</p>
-          <div class="id_mnu_crr_4" bis_skin_checked="1">374 Min</div>
+          <div class="id_mnu_crr_4" >374 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_585" class="upcoming__race JPN" bis_skin_checked="1">
+        <div id="id_hip2_585" class="upcoming__race JPN" >
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/jpn.png" alt="jpn-img">
           <p class="upcoming__racetrack">JPN Tokyo City R1</p>
-          <div class="id_mnu_crr_585" bis_skin_checked="1">444 Min</div>
+          <div class="id_mnu_crr_585" >444 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_588" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_588" class="upcoming__race AUS"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Sandown AUS R1</p>
-          <div class="id_mnu_crr_588" bis_skin_checked="1">449 Min</div>
+          <div class="id_mnu_crr_588">449 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_231" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_231" class="upcoming__race AUS" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Townsville R1</p>
-          <div class="id_mnu_crr_231" bis_skin_checked="1">453 Min</div>
+          <div class="id_mnu_crr_231">453 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_211" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_211" class="upcoming__race AUS" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Rosehill R1</p>
-          <div class="id_mnu_crr_211" bis_skin_checked="1">464 Min</div>
+          <div class="id_mnu_crr_211" >464 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_600" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_600" class="upcoming__race AUS" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Morphettville R1</p>
-          <div class="id_mnu_crr_600" bis_skin_checked="1">491 Min</div>
+          <div class="id_mnu_crr_600">491 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_477" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_477" class="upcoming__race AUS" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Kyneton R1</p>
-          <div class="id_mnu_crr_477" bis_skin_checked="1">495 Min</div>
+          <div class="id_mnu_crr_477">495 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_180" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_180" class="upcoming__race AUS"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">AUS Doomben R1</p>
-          <div class="id_mnu_crr_180" bis_skin_checked="1">507 Min</div>
+          <div class="id_mnu_crr_180" >507 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_181" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_181" class="upcoming__race AUS"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">AUS Newcastle R1</p>
-          <div class="id_mnu_crr_181" bis_skin_checked="1">519 Min</div>
+          <div class="id_mnu_crr_181" >519 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_266" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_266" class="upcoming__race AUS"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Sapphire Coast R1</p>
-          <div class="id_mnu_crr_266" bis_skin_checked="1">545 Min</div>
+          <div class="id_mnu_crr_266" >545 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_178" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_178" class="upcoming__race AUS"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Ascot R1</p>
-          <div class="id_mnu_crr_178" bis_skin_checked="1">573 Min</div>
+          <div class="id_mnu_crr_178" >573 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_219" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_219" class="upcoming__race AUS"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Tamworth R1</p>
-          <div class="id_mnu_crr_219" bis_skin_checked="1">575 Min</div>
+          <div class="id_mnu_crr_219" >575 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_174" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_174" class="upcoming__race AUS"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Gold Coast R1</p>
-          <div class="id_mnu_crr_174" bis_skin_checked="1">593 Min</div>
+          <div class="id_mnu_crr_174" >593 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_562" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_562" class="upcoming__race AUS" style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Darwin R1</p>
-          <div class="id_mnu_crr_562" bis_skin_checked="1">684 Min</div>
+          <div class="id_mnu_crr_562" >684 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_542" class="upcoming__race AUS" bis_skin_checked="1" style="">
+        <div id="id_hip2_542" class="upcoming__race AUS"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/aus.png" alt="aus-img">
           <p class="upcoming__racetrack">Esperance R1</p>
-          <div class="id_mnu_crr_542" bis_skin_checked="1">696 Min</div>
+          <div class="id_mnu_crr_542" >696 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_741" class="upcoming__race FRA" bis_skin_checked="1" style="">
+        <div id="id_hip2_741" class="upcoming__race FRA"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/fra.png" alt="fra-img">
           <p class="upcoming__racetrack">Deauville R1</p>
-          <div class="id_mnu_crr_741" bis_skin_checked="1">1152 Min</div>
+          <div class="id_mnu_crr_741" >1152 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_915" class="upcoming__race JAM" bis_skin_checked="1" style="">
+        <div id="id_hip2_915" class="upcoming__race JAM"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/jam.png" alt="jam-img">
           <p class="upcoming__racetrack">Caymanas Park R1</p>
-          <div class="id_mnu_crr_915" bis_skin_checked="1">1394 Min</div>
+          <div class="id_mnu_crr_915" >1394 Min</div>
           <p>Pure blood</p>
         </div>
     
-        <div id="id_hip2_923" class="upcoming__race ECU" bis_skin_checked="1" style="">
+        <div id="id_hip2_923" class="upcoming__race ECU"  style="">
           <img class="upcoming__img" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/flags/ecu.png" alt="ecu-img">
           <p class="upcoming__racetrack">Miguel Salem Dibo R1</p>
-          <div class="id_mnu_crr_923" bis_skin_checked="1">2924 Min</div>
+          <div class="id_mnu_crr_923" >2924 Min</div>
           <p>Pure blood</p>
         </div>
     </div>
 
-        <div class="race" bis_skin_checked="1">
+        <div class="race" >
 
-          <div class="race__data" bis_skin_checked="1">
+          <div class="race__data">
             <img src="https://www.universalhorse.club/img/iconos/caballo2.png" alt="horse-img">
-            <div class="nombre_hipodromo" bis_skin_checked="1">UK Catterick Bridge</div>
-            <div class="fecha_crr" bis_skin_checked="1">31/01/2025</div>
+            <div class="nombre_hipodromo" >UK Catterick Bridge</div>
+            <div class="fecha_crr" >31/01/2025</div>
           </div>
 
-          <div class="race__nraces" bis_skin_checked="1">
-                <div bis_skin_checked="1"><span class="t_races">Races</span> :</div>
-                <div class="race__nraces--active" id="all_btn_races" bis_skin_checked="1">
-                  <div class="race__nraces--active" id="race_results" bis_skin_checked="1"></div>
-                  <div class="race__nraces--active" id="carreras_activas" bis_skin_checked="1"><button class="btn nrace active">7</button></div>
+          <div class="race__nraces" >
+                <div ><span class="t_races">Races</span> :</div>
+                <div class="race__nraces--active" id="all_btn_races" >
+                  <div class="race__nraces--active" id="race_results" ></div>
+                  <div class="race__nraces--active" id="carreras_activas" ><button class="btn nrace active">7</button></div>
                 </div>
               </div>
 
-          <div class="race__time-programs" bis_skin_checked="1">
-            <div class="race__time" bis_skin_checked="1">
-                  <div bis_skin_checked="1"><span class="t_s-time">Start time</span> :</div>
-                  <div class="hora_inicio" bis_skin_checked="1">11:03:00</div>
-                  <div bis_skin_checked="1"> / </div>
-                  <div bis_skin_checked="1"><span class="t_start-in">Starting in</span> :</div>
-                  <div class="race__start-in" bis_skin_checked="1">0-1:58:27</div>
+          <div class="race__time-programs" >
+            <div class="race__time">
+                  <div ><span class="t_s-time">Start time</span> :</div>
+                  <div class="hora_inicio" >11:03:00</div>
+                  <div > / </div>
+                  <div ><span class="t_start-in">Starting in</span> :</div>
+                  <div class="race__start-in" >0-1:58:27</div>
             </div>
-            <div class="race__programs" bis_skin_checked="1">            
-              <div bis_skin_checked="1"><span class="t_programs">Programs</span> :</div>
-              <div class="race__programs" id="gacetas" bis_skin_checked="1">No available</div>
+            <div class="race__programs" >            
+              <div ><span class="t_programs">Programs</span> :</div>
+              <div class="race__programs" id="gacetas" >No available</div>
             </div>
           </div>
            
-          <div class="race__type-bet" id="nav-tab" role="tablist" bis_skin_checked="1">
+          <div class="race__type-bet" id="nav-tab" role="tablist" >
             <button class="btn type-bet active" id="pills-wps-tab" data-bs-toggle="tab" data-bs-target="#pills-wps" style="display: block;">W/P/S</button>
             <button class="btn type-bet" id="pills-exacta-tab" data-bs-toggle="tab" data-bs-target="#pills-exacta" style="display: block;">Exacta</button>
             <button class="btn type-bet" id="pills-trifecta-tab" data-bs-toggle="tab" data-bs-target="#pills-trifecta" style="display: block;">Trifecta</button>
@@ -475,51 +531,51 @@
             <button class="btn type-bet" id="pills-pick3-tab" data-bs-toggle="tab" data-bs-target="#pills-pick3" style="display: none;">Pick 3</button>
           </div>
 
-          <div class="tab-content" id="bet_types_container" bis_skin_checked="1">
-            <div class="tab-pane fade show active wps_2" id="pills-wps" bis_skin_checked="1">
-              <div class="race__wps titles" bis_skin_checked="1">
-                <div class="t_win cls_w" bis_skin_checked="1" style="display: block;">Win</div>
-                <div class="t_place cls_p" bis_skin_checked="1" style="display: block;">Place</div>
-                <div class="t_show cls_s" bis_skin_checked="1" style="display: none;">Show</div>
-                <div class="" bis_skin_checked="1">NP</div>
-                <div class="" bis_skin_checked="1">Montador</div>
-                <div class="" bis_skin_checked="1">Entrenador</div>
-                <div class="" bis_skin_checked="1">Peso</div>
-                <div class="" bis_skin_checked="1">Med.</div>
-                <div class="" bis_skin_checked="1">M/L</div>
+          <div class="tab-content" id="bet_types_container" >
+            <div class="tab-pane fade show active wps_2" id="pills-wps" >
+              <div class="race__wps titles" >
+                <div class="t_win cls_w"  style="display: block;">Win</div>
+                <div class="t_place cls_p" style="display: block;">Place</div>
+                <div class="t_show cls_s" style="display: none;">Show</div>
+                <div class="" >NP</div>
+                <div class="" >Montador</div>
+                <div class="" >Entrenador</div>
+                <div class="" >Peso</div>
+                <div class="" >Med.</div>
+                <div class="" >M/L</div>
               </div>
-              <div class="race__container-races" id="cab_wps" bis_skin_checked="1">
-      <div class="race__wps" bis_skin_checked="1">
+              <div class="race__container-races" id="cab_wps" >
+      <div class="race__wps" >
         <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780859_" autocomplete="off" data-raider="10780859,w,1,CAB,Kazar Forez,WIN" style="display: block;">
         <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780859_" autocomplete="off" data-raider="10780859,p,1,CAB,Kazar Forez,PLACE" style="display: block;">
         <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780859_" autocomplete="off" data-raider="10780859,s,1,CAB,Kazar Forez,SHOW" style="display: none;">
         
-  <div class="race__nrace" bis_skin_checked="1">
+  <div class="race__nrace" >
     <img class="r-1" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
     <p class="race__num">1</p>
   </div>
-  <div bis_skin_checked="1">Kazar Forez</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:168</div>
-  <div bis_skin_checked="1">7/1</div>
-  <div bis_skin_checked="1">BL</div>
+  <div >Kazar Forez</div>
+  <div >-</div>
+  <div >LB:168</div>
+  <div >7/1</div>
+  <div >BL</div>
       </div>
-      <div class="race__wps" bis_skin_checked="1">
+      <div class="race__wps" >
         <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780860_" autocomplete="off" data-raider="10780860,w,2,CAB,Balcomie Breeze,WIN" style="display: block;">
         <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780860_" autocomplete="off" data-raider="10780860,p,2,CAB,Balcomie Breeze,PLACE" style="display: block;">
         <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780860_" autocomplete="off" data-raider="10780860,s,2,CAB,Balcomie Breeze,SHOW" style="display: none;">
         
-  <div class="race__nrace" bis_skin_checked="1">
+  <div class="race__nrace" >
     <img class="r-2" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
     <p class="race__num">2</p>
   </div>
-  <div bis_skin_checked="1">Balcomie Breeze</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:166</div>
-  <div bis_skin_checked="1">6/1</div>
-  <div bis_skin_checked="1">BL</div>
+  <div >Balcomie Breeze</div>
+  <div >-</div>
+  <div >LB:166</div>
+  <div>6/1</div>
+  <div >BL</div>
       </div>
-      <div class="race__wps" bis_skin_checked="1">
+      <div class="race__wps" >
         <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780861_" autocomplete="off" data-raider="10780861,w,3,CAB,Lahire,WIN" style="display: block;">
         <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780861_" autocomplete="off" data-raider="10780861,p,3,CAB,Lahire,PLACE" style="display: block;">
         <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780861_" autocomplete="off" data-raider="10780861,s,3,CAB,Lahire,SHOW" style="display: none;">
