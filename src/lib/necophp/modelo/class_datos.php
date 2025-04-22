@@ -106,7 +106,11 @@ class data_Connect {
                 );
                 return json_decode($this->respuesta($postdata));
 	}  
+<<<<<<< HEAD
 	public function rvideo($token)
+=======
+	public function rvideo($token) //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
 	{
                 $postdata = http_build_query(
                     array(
@@ -176,7 +180,11 @@ class data_Connect {
                return $this->respuesta($postdata);
 	}        
         
+<<<<<<< HEAD
 	public function lista_hipodromos($Atoken)
+=======
+	public function lista_hipodromos($Atoken) //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
 	{        
             $postdata = http_build_query(
                 array(
@@ -202,7 +210,11 @@ class data_Connect {
            return $this->respuesta($postdata);            
             
         }
+<<<<<<< HEAD
 	public function resultados_dia($token,$fecha,$tp_usuario)
+=======
+	public function resultados_dia($token,$fecha,$tp_usuario) //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
 	{        
             $postdata = http_build_query(
                 array(
@@ -228,7 +240,11 @@ class data_Connect {
            return $this->respuesta($postdata);            
         }        
         
+<<<<<<< HEAD
 	public function resultados_hipodromo2($token,$fecha,$id_pista,$tp_usuario)
+=======
+	public function resultados_hipodromo2($token,$fecha,$id_pista,$tp_usuario) //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
 	{        
             $postdata = http_build_query(
                 array(
@@ -291,7 +307,11 @@ class data_Connect {
             );
            return $this->respuesta($postdata);                                    
         }
+<<<<<<< HEAD
         public function ultima_jugada($token,$tp_usuario){
+=======
+        public function ultima_jugada($token,$tp_usuario){ //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
             $postdata = http_build_query(
                 array(
                     'accion' => 'ultima_jugada',
@@ -381,7 +401,11 @@ class data_Connect {
             return $this->respuesta($postdata);            
         }    
         
+<<<<<<< HEAD
         public function busca_retirados_carreras($token,$id_crr,$tp_usuario){
+=======
+        public function busca_retirados_carreras($token,$id_crr,$tp_usuario){ //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
             $postdata = http_build_query(
                 array(
                     'accion' => 'busca_retirados_carreras',
@@ -404,7 +428,11 @@ class data_Connect {
             return $this->respuesta($postdata);                        
         }
         
+<<<<<<< HEAD
         public function hipodromos_activos($token,$tp_usuario){
+=======
+        public function hipodromos_activos($token,$tp_usuario){ //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
             $postdata = http_build_query(
                 array(
                     'accion' => 'hipodromos_activos',
@@ -415,8 +443,13 @@ class data_Connect {
             return $this->respuesta($postdata);
         }
         
+<<<<<<< HEAD
         public function resultados_detalle_carrera2($token,$fecha,$id_pista,$carrera,$tp_usuario){
             $postdata = http_build_query(
+=======
+        public function resultados_detalle_carrera2($token,$fecha,$id_pista,$carrera,$tp_usuario){ 
+            $postdata = http_build_query( //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
                 array(
                     'accion' => 'resultados_detalle_carrera2',
                     'token' => $token,
@@ -429,7 +462,11 @@ class data_Connect {
            return $this->respuesta($postdata);            
         }
 
+<<<<<<< HEAD
         public function apuestas_minimas($token,$tp_usuario){
+=======
+        public function apuestas_minimas($token,$tp_usuario){ //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
             $postdata = http_build_query(
                 array(
                     'accion' => 'apuestas_minimas',
@@ -453,7 +490,11 @@ class data_Connect {
            return $this->respuesta($postdata);            
         }        
 /************************ RETAIL ******************************/        
+<<<<<<< HEAD
 	public function loginr($usuario, $pass)
+=======
+	public function loginr($usuario, $pass) //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
 	{
                 $postdata = http_build_query(
                     array(
@@ -627,7 +668,11 @@ class data_Connect {
             
         }
         
+<<<<<<< HEAD
 	public function r_listas_usuario($token)
+=======
+	public function r_listas_usuario($token) //LISTO
+>>>>>>> e279d50609a197b9d9b45fc3d162851700515402
 	{        
             $postdata = http_build_query(
                 array(
