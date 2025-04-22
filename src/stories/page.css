@@ -1,4 +1,4 @@
-.storybook-page {
+/* .storybook-page {
   margin: 0 auto;
   padding: 48px 20px;
   max-width: 600px;
@@ -65,4 +65,44 @@
 
 .storybook-page .tip-wrapper svg path {
   fill: #1ea7fd;
+} */
+*{
+  color: #ffff;
+}
+.accordion{
+  max-width: 270px;
+  margin: 1rem auto;
+  padding: 0 0 1.25em;
+  border-radius: 0.3125rem;
+  color: white;
+}
+
+h2{
+  color: white;
+}
+
+.accordion-item{
+  border:2px solid #ddd;
+  border-radius: 0.3125rem;
+  overflow: hidden;
+  background: linear-gradient(to top, #2c2c2c, #3a3a3a);
+}
+
+.accordion-header{
+  color: white;
+  background: linear-gradient(to top, #2c2c2c, #3a3a3a);
+}
+
+.accordion-button{
+  background: linear-gradient(to top, #2c2c2c, #3a3a3a);
+  color: white !important;       
+}
+ 
+.accordion-body ul li {
+  padding: 0.5rem 0;
+  color: white;
+}
+
+.accordion .accordion-button:not(.collapsed){
+  color: white !important;
 }
