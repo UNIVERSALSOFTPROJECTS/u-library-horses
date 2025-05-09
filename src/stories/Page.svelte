@@ -43,6 +43,11 @@
       }
   })
   
+  function seleccionarCarrera(carrera: any){
+    console.log("ID de hipromo:", carrera.id_pista);
+    console.log("Track del hipodromo: ", carrera.track);
+    
+  }
   let cantidadCaballos = $derived(() => hipodromos.find(h => h.tipo === 1)?.cantidad_tipo ?? 0);
   let cantidadGalgos = $derived(() => hipodromos.find(h => h.tipo === 2)?.cantidad_tipo ?? 0);
   let cantidadCarretas = $derived(() => hipodromos.find(h => h.tipo === 3)?.cantidad_tipo ?? 0);
@@ -177,8 +182,8 @@ onMount(async() =>{
         
           <!-- comienza div de carreras  -->
           {#each (country.carreras ??[] ) as carrera, raceIndex(carrera.id_pista || raceIndex)}
-    <div id="id_hip_{countryIndex}_{raceIndex}" class="racetrack__event racetr" >
-      <div class="id_mnu_crr_{carrera.id_pista}">
+    <div id="id_hip_{countryIndex}_{raceIndex}" class="racetrack__event racetr" on:click={() => seleccionarCarrera(carrera)}>
+      <div class="id_mnu_crr_{carrera.id_pista}_{carrera.track}">
         {$tiempos[carrera.id_pista] ?? '...'}
       </div>  
       <div class="name" >{carrera.nombre_pista}</div>
