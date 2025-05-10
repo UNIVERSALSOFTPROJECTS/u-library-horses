@@ -9,11 +9,9 @@
   let user = $state<{ name: string }>();
   getRacetracksByCountry(data);
 
-  //CONEXION DEL WEBSOCKET DESDE EL FRONT
-  import { WebSocketClientService } from '../lib/api/websockets/WebsocketClient.js';
+  //CONEXION DEL WEBSOCKET DESDE EL FRONTEND
 
-  const socket = new WebSocketClientService("wss://bws2.miapuesta.vip/ws")
-  socket.connect();
+  import { enviarDatosSeleccion } from './necows.js';
   //RETORNO DE HIPODROMOS ACTIVOS DESDE NECO
   import { getHipodromosPorTipo } from '../lib/api/services/necoHipodromosPorTipo.service.js';
   import type { HipodromosPorTipoResponse } from '../lib/api/models/NecoHipodromosPorTipoResponse.js';
@@ -43,11 +41,6 @@
       }
   })
   
-  function seleccionarCarrera(carrera: any){
-    console.log("ID de hipromo:", carrera.id_pista);
-    console.log("Track del hipodromo: ", carrera.track);
-    
-  }
   let cantidadCaballos = $derived(() => hipodromos.find(h => h.tipo === 1)?.cantidad_tipo ?? 0);
   let cantidadGalgos = $derived(() => hipodromos.find(h => h.tipo === 2)?.cantidad_tipo ?? 0);
   let cantidadCarretas = $derived(() => hipodromos.find(h => h.tipo === 3)?.cantidad_tipo ?? 0);
@@ -182,7 +175,7 @@ onMount(async() =>{
         
           <!-- comienza div de carreras  -->
           {#each (country.carreras ??[] ) as carrera, raceIndex(carrera.id_pista || raceIndex)}
-    <div id="id_hip_{countryIndex}_{raceIndex}" class="racetrack__event racetr" on:click={() => seleccionarCarrera(carrera)}>
+    <div id="id_hip_{countryIndex}_{raceIndex}" class="racetrack__event racetr" on:click={() => enviarDatosSeleccion(carrera.id_pista, carrera.track)}>
       <div class="id_mnu_crr_{carrera.id_pista}_{carrera.track}">
         {$tiempos[carrera.id_pista] ?? '...'}
       </div>  
