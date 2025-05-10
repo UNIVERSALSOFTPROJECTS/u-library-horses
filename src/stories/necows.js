@@ -4,11 +4,13 @@ import { captureRejectionSymbol } from "ws";
 
 const ws = new WebSocket("wss://bws2.universalrace.net/ws");
 
+const session = get(userSession);
+const token = session?.token;
+let hipodromosCache = [];
+
 ws.addEventListener("open", () => {
 
   console.log("✅ Conectado al WebSocket");
-  const session = get(userSession);
-  const token = session?.token;
   console.log("usersession dentro de mi WS: ", session);
 
   const mensaje_ = {
@@ -29,13 +31,19 @@ ws.addEventListener("open", () => {
 });
 
 // Al recibir mensajes
-
-let enviado;
-
 let carreraSeleccionada = {
   id_pista: null,
   track: null,
 };
+
+let mensajependiente = {
+  idt: null,
+  icr: null,
+  tr: null,
+  tokens: null,
+  cr: null,
+}
+let enviado = false;
 
 export function enviarDatosSeleccion(id_pista, track){
   carreraSeleccionada.id_pista = id_pista;
@@ -43,55 +51,90 @@ export function enviarDatosSeleccion(id_pista, track){
   console.log("Enviando datos seleccionados:", carreraSeleccionada);
 }
 
+function intentarEnviarMensaje(){
+  const {idt, icr, cr, tr, tokens} = mensajependiente;
+  if(!idt || !icr || !cr || !tr || !tokens){
+    console.log("No se han completado todos los campos del mensaje.");
+    return;
+  }
+
+  const mensajePrincipal = {
+    type: "event",
+    event: "fromUser_LogThisString",
+    params: {
+      tipo: "ch2",
+      tokens,
+      idt,
+      tr,
+      cr,
+      icr,
+    }
+  };
+  ws.send(JSON.stringify(mensajePrincipal));
+  enviado = true;
+  console.log("Mensaje a enviar:", mensajePrincipal);
+  
+}
+
 
 ws.addEventListener("message", (event) => {
   const data = JSON.parse(event.data);
   console.log("Recibido:", data);
 
-  if (data.prop === "muestro_hip2" || data.prop === "muestro_hip2_new") {
-    console.log("🧠 Respuesta de handshake, enviando mensaje principal...");
-    let parsedArray = [];
-
-    try {
-      const firstElement = data.value[0]; // es el string JSON escapado
-      parsedArray = JSON.parse(firstElement); // lo convertimos en array real
-    } catch (e) {
-      console.warn("❌ No se pudo parsear correctamente data.value[0]:", data.value);
-      return;
+  if(data.prop === "muestro_hip2_new"){
+    try{
+      const parsed = JSON.parse(data.value[0]);
+      const carrera = parsed.find(c => c.rid_pista === carreraSeleccionada.id_pista);
+      if(!carrera)return;
+      if(carrera){
+        console.log("Carrera es: ", carrera);        
+      }
+      mensajependiente.idt = carreraSeleccionada.id_pista;
+      mensajependiente.icr = carrera.idcrr;
+      mensajependiente.tr = carreraSeleccionada.track;
+      mensajependiente.tokens = token;
+      intentarEnviarMensaje();
+      console.log("Mensaje enviado dentro de hip_2_new:", mensajependiente);
+    }catch(e){
+      console.error("Error al parsear el mensaje:", e);
     }
-
-
-    const carreraEncontrada = parsedArray.find((c) => c.rid_pista === carreraSeleccionada.id_pista);
-    if (!carreraEncontrada) {
-      console.warn("⚠ No se encontró la carrera con rid_pista:", carreraSeleccionada.id_pista);
-      return;
-    }
-
-    const session = get(userSession);
-    const token = session?.token;
-
-    let mensajePrincipal = {
-    type: "event",
-    event: "fromUser_LogThisString",
-    params: {
-      tipo: "ch2",
-      tokens: token,
-      idt: carreraSeleccionada.id_pista,     // ← ID terminal (puede cambiar) 
-      cr: carreraEncontrada.rcarrera,      // ← carrera o nro
-      icr: carreraEncontrada.idcrr,    // ← ID de carrera exacta
-      tr: carreraSeleccionada.track,       // ← tipo: HIP / GAL / etc.
-    }
-  };
-    ws.send(JSON.stringify(mensajePrincipal));
-    console.log("Carrea seleccionada id_pista:", carreraSeleccionada.id_pista);
-    console.log("Carrea seleccionada track:", carreraSeleccionada.track);
-    console.log("Carrea encontrada rcarrea:", carreraEncontrada.rcarrera);
-    console.log("Carrea encontrada idcrr:", carreraEncontrada.idcrr);
-
-    console.log("parsed del websocket", parsedArray);
-    
-    
   }
+
+  if (data.prop === "muestro_hip2") {
+    try{
+      const parsed = JSON.parse(data.value[0]);
+
+      if(hipodromosCache.length === 0){
+        hipodromosCache = parsed;
+        console.log("Hipodromos cacheados:", hipodromosCache);
+      }
+      console.log("mensaje pendiente cr: ", mensajependiente.cr);
+      
+      if(!mensajependiente.cr && carreraSeleccionada.id_pista){
+        try{
+            const carrera = hipodromosCache.find(c => c.rid_pista === carreraSeleccionada.id_pista);
+            console.log("Carrera encontrada en el cache:", carrera);
+            if(carrera){
+            mensajependiente.cr = carrera.rcarrera
+            intentarEnviarMensaje();
+        }
+        }catch(e){
+          warning("Error al encontrar la carrera en el cache:", e);
+        }
+        //console.log("Carrera seleccionada para el cache:", carrera);
+        //if(carrera){
+        //  mensajependiente.cr = carrera.rcarrera
+         // intentarEnviarMensaje();
+       // }
+
+      }
+
+      console.log("Mensaje enviado dentro de hip_2:", mensajependiente);
+    } catch(e){
+      console.error("Error al parsear el mensaje:", e);
+    }
+  }
+  
 
   if (data.prop === "cab_hip2") {
     console.log("🏇 Datos de caballos recibidos:");
