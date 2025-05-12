@@ -557,12 +557,12 @@ onMount(async() =>{
         
   <div class="race__nrace" >
     <img class="r-1" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">1</p>
+    <p class="race__num">{caballo.np}</p>
   </div>
   <div>{caballo.cnombre}</div>
   <div >-</div>
-  <div >LB:168</div>
-  <div >7/1</div>
+  <div >{caballo.peso}</div>
+  <div >{caballo.ml}</div>
   <div >BL</div>
       </div>
       {/each}
