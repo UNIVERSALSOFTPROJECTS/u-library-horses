@@ -6,11 +6,12 @@
   import { data } from './horses.js';  
   import { getRacetracksByCountry, countryArray } from './function.js';
   import './main.scss';
+  import { caballos } from '../lib/api/stores/caballosStore.js';
+  import { derived } from 'svelte/store';
   let user = $state<{ name: string }>();
   getRacetracksByCountry(data);
-
+  const caballosList = derived(caballos, (v) => v ?? []);
   //CONEXION DEL WEBSOCKET DESDE EL FRONTEND
-
   import { enviarDatosSeleccion } from './necows.js';
   //RETORNO DE HIPODROMOS ACTIVOS DESDE NECO
   import { getHipodromosPorTipo } from '../lib/api/services/necoHipodromosPorTipo.service.js';
@@ -75,6 +76,7 @@
 
 onMount(() => {
   iniciarTemporizador();
+  console.log("Caballos del ws dende Page.svelte: ", caballos);
 });
 
 // UNION DE HIPODROMOS ENDPOINT Y WEBSOCKET
@@ -93,6 +95,7 @@ onMount(async() =>{
   } else{
     console.warn('No hay wesion activa para testear hipodromos base.');
   }
+  console.log("Caballos del ws dende Page.svelte: ", caballos);
 })
 </script>
 <NavbarComponent></NavbarComponent>
@@ -502,6 +505,8 @@ onMount(async() =>{
                 <div class="race__nraces--active" id="all_btn_races" >
                   <div class="race__nraces--active" id="race_results" ></div>
                   <div class="race__nraces--active" id="carreras_activas" ><button class="btn nrace active">7</button></div>
+                  <div class="race__nraces--active" id="carreras_activas" ><button class="btn nrace active">7</button></div>
+
                 </div>
               </div>
 
@@ -543,6 +548,8 @@ onMount(async() =>{
                 <div class="" >M/L</div>
               </div>
               <div class="race__container-races" id="cab_wps" >
+      {#if $caballosList.lista.length > 0}
+      {#each $caballosList.lista as caballo}
       <div class="race__wps" >
         <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780859_" autocomplete="off" data-raider="10780859,w,1,CAB,Kazar Forez,WIN" style="display: block;">
         <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780859_" autocomplete="off" data-raider="10780859,p,1,CAB,Kazar Forez,PLACE" style="display: block;">
@@ -552,117 +559,16 @@ onMount(async() =>{
     <img class="r-1" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
     <p class="race__num">1</p>
   </div>
-  <div >Kazar Forez</div>
+  <div>{caballo.cnombre}</div>
   <div >-</div>
   <div >LB:168</div>
   <div >7/1</div>
   <div >BL</div>
       </div>
-      <div class="race__wps" >
-        <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780860_" autocomplete="off" data-raider="10780860,w,2,CAB,Balcomie Breeze,WIN" style="display: block;">
-        <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780860_" autocomplete="off" data-raider="10780860,p,2,CAB,Balcomie Breeze,PLACE" style="display: block;">
-        <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780860_" autocomplete="off" data-raider="10780860,s,2,CAB,Balcomie Breeze,SHOW" style="display: none;">
-        
-  <div class="race__nrace" >
-    <img class="r-2" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">2</p>
-  </div>
-  <div >Balcomie Breeze</div>
-  <div >-</div>
-  <div >LB:166</div>
-  <div>6/1</div>
-  <div >BL</div>
-      </div>
-      <div class="race__wps" >
-        <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780861_" autocomplete="off" data-raider="10780861,w,3,CAB,Lahire,WIN" style="display: block;">
-        <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780861_" autocomplete="off" data-raider="10780861,p,3,CAB,Lahire,PLACE" style="display: block;">
-        <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780861_" autocomplete="off" data-raider="10780861,s,3,CAB,Lahire,SHOW" style="display: none;">
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-3" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">3</p>
-  </div>
-  <div bis_skin_checked="1">Lahire</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:164</div>
-  <div bis_skin_checked="1">1/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__wps" bis_skin_checked="1">
-        <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780862_" autocomplete="off" data-raider="10780862,w,4,CAB,Little Pi,WIN" style="display: block;">
-        <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780862_" autocomplete="off" data-raider="10780862,p,4,CAB,Little Pi,PLACE" style="display: block;">
-        <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780862_" autocomplete="off" data-raider="10780862,s,4,CAB,Little Pi,SHOW" style="display: none;">
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-4" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">4</p>
-  </div>
-  <div bis_skin_checked="1">Little Pi</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:162</div>
-  <div bis_skin_checked="1">7/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__wps" bis_skin_checked="1">
-        <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780863_" autocomplete="off" data-raider="10780863,w,5,CAB,Kellies Dream,WIN" style="display: block;">
-        <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780863_" autocomplete="off" data-raider="10780863,p,5,CAB,Kellies Dream,PLACE" style="display: block;">
-        <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780863_" autocomplete="off" data-raider="10780863,s,5,CAB,Kellies Dream,SHOW" style="display: none;">
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-5" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">5</p>
-  </div>
-  <div bis_skin_checked="1">Kellies Dream</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:158</div>
-  <div bis_skin_checked="1">8/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__wps" bis_skin_checked="1">
-        <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780864_" autocomplete="off" data-raider="10780864,w,6,CAB,Kuma Beach,WIN" style="display: block;">
-        <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780864_" autocomplete="off" data-raider="10780864,p,6,CAB,Kuma Beach,PLACE" style="display: block;">
-        <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780864_" autocomplete="off" data-raider="10780864,s,6,CAB,Kuma Beach,SHOW" style="display: none;">
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-6" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">6</p>
-  </div>
-  <div bis_skin_checked="1">Kuma Beach</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:149</div>
-  <div bis_skin_checked="1">20/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__wps" bis_skin_checked="1">
-        <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780865_" autocomplete="off" data-raider="10780865,w,7,CAB,Admiral Fitz,WIN" style="display: block;">
-        <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780865_" autocomplete="off" data-raider="10780865,p,7,CAB,Admiral Fitz,PLACE" style="display: block;">
-        <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780865_" autocomplete="off" data-raider="10780865,s,7,CAB,Admiral Fitz,SHOW" style="display: none;">
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-7" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">7</p>
-  </div>
-  <div bis_skin_checked="1">Admiral Fitz</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:144</div>
-  <div bis_skin_checked="1">10/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__wps" bis_skin_checked="1">
-        <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780866_" autocomplete="off" data-raider="10780866,w,8,CAB,Inoue,WIN" style="display: block;">
-        <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780866_" autocomplete="off" data-raider="10780866,p,8,CAB,Inoue,PLACE" style="display: block;">
-        <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780866_" autocomplete="off" data-raider="10780866,s,8,CAB,Inoue,SHOW" style="display: none;">
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-8" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">8</p>
-  </div>
-  <div bis_skin_checked="1">Inoue</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:142</div>
-  <div bis_skin_checked="1">30/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div></div>
+      {/each}
+      {/if}
+    
+    </div>
             </div>
             <div class="tab-pane fade" id="pills-exacta" bis_skin_checked="1">
               <div class="race__exacta titles" bis_skin_checked="1">
