@@ -10,9 +10,11 @@
   import { derived } from 'svelte/store';
   let user = $state<{ name: string }>();
   getRacetracksByCountry(data);
-  const caballosList = derived(caballos, (v) => v ?? []);
+  const caballosList = derived(caballos, (v) => v ?? {lista: [], icr: 0});
+  let selectedPista: {id_pista: number; track:string} = {id_pista: 0, track: ''};
+  //let startICR: number = null;
   //CONEXION DEL WEBSOCKET DESDE EL FRONTEND
-  import { enviarDatosSeleccion } from './necows.js';
+  import { enviarDatosSeleccion, seleccionarCarreraPorNP } from './necows.js';
   //RETORNO DE HIPODROMOS ACTIVOS DESDE NECO
   import { getHipodromosPorTipo } from '../lib/api/services/necoHipodromosPorTipo.service.js';
   import type { HipodromosPorTipoResponse } from '../lib/api/models/NecoHipodromosPorTipoResponse.js';
@@ -504,9 +506,11 @@ onMount(async() =>{
                 <div ><span class="t_races">Races</span> :</div>
                 <div class="race__nraces--active" id="all_btn_races" >
                   <div class="race__nraces--active" id="race_results" ></div>
-                  <div class="race__nraces--active" id="carreras_activas" ><button class="btn nrace active">7</button></div>
-                  <div class="race__nraces--active" id="carreras_activas" ><button class="btn nrace active">7</button></div>
-
+                  {#each ($caballosList.lista ?? [])
+                    .filter(c => c.np >= ($caballosList.icr ?? 0)) 
+                    as caballos, i}
+                      <div class="race__nraces--active" id="carreras_activas" ><button class="btn nrace {i=== 0 ? 'active': ''}" on:click="{() => seleccionarCarreraPorNP(caballos.np)}">{caballos.np}</button></div>
+                  {/each} 
                 </div>
               </div>
 
@@ -582,102 +586,23 @@ onMount(async() =>{
                 <div class="" bis_skin_checked="1">M/L</div>
               </div>
               <div class="race__container-races" id="cab_exacta" bis_skin_checked="1">
+      {#if $caballosList.lista.length > 0}
+      {#each $caballosList.lista as caballo}
       <div class="race__exacta " bis_skin_checked="1"><input class="chk exacta_1" type="checkbox" ><input class="chk exacta_2" type="checkbox" >
         
   <div class="race__nrace" bis_skin_checked="1">
     <img class="r-1" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">1</p>
+    <p class="race__num">{caballo.np}</p>
   </div>
-  <div bis_skin_checked="1">Kazar Forez</div>
+  <div bis_skin_checked="1">{caballo.cnombre}</div>
   <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:168</div>
-  <div bis_skin_checked="1">7/1</div>
+  <div bis_skin_checked="1">{caballo.peso}</div>
+  <div bis_skin_checked="1">{caballo.ml}</div>
   <div bis_skin_checked="1">BL</div>
       </div>
-      <div class="race__exacta " bis_skin_checked="1"><input class="chk exacta_1" type="checkbox" ><input class="chk exacta_2" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-2" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">2</p>
+      {/each}
+  {/if}
   </div>
-  <div bis_skin_checked="1">Balcomie Breeze</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:166</div>
-  <div bis_skin_checked="1">6/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__exacta " bis_skin_checked="1"><input class="chk exacta_1" type="checkbox" ><input class="chk exacta_2" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-3" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">3</p>
-  </div>
-  <div bis_skin_checked="1">Lahire</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:164</div>
-  <div bis_skin_checked="1">1/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__exacta " bis_skin_checked="1"><input class="chk exacta_1" type="checkbox" ><input class="chk exacta_2" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-4" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">4</p>
-  </div>
-  <div bis_skin_checked="1">Little Pi</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:162</div>
-  <div bis_skin_checked="1">7/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__exacta " bis_skin_checked="1"><input class="chk exacta_1" type="checkbox" ><input class="chk exacta_2" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-5" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">5</p>
-  </div>
-  <div bis_skin_checked="1">Kellies Dream</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:158</div>
-  <div bis_skin_checked="1">8/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__exacta " bis_skin_checked="1"><input class="chk exacta_1" type="checkbox" ><input class="chk exacta_2" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-6" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">6</p>
-  </div>
-  <div bis_skin_checked="1">Kuma Beach</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:149</div>
-  <div bis_skin_checked="1">20/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__exacta " bis_skin_checked="1"><input class="chk exacta_1" type="checkbox" ><input class="chk exacta_2" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-7" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">7</p>
-  </div>
-  <div bis_skin_checked="1">Admiral Fitz</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:144</div>
-  <div bis_skin_checked="1">10/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__exacta " bis_skin_checked="1"><input class="chk exacta_1" type="checkbox" ><input class="chk exacta_2" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-8" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">8</p>
-  </div>
-  <div bis_skin_checked="1">Inoue</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:142</div>
-  <div bis_skin_checked="1">30/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div></div>
             </div>
             <div class="tab-pane fade" id="pills-trifecta" bis_skin_checked="1">
               <div class="race__trifecta titles" bis_skin_checked="1">
@@ -692,102 +617,23 @@ onMount(async() =>{
                 <div class="" bis_skin_checked="1">M/L</div>
               </div>
               <div class="race__container-races" id="cab_trifecta" bis_skin_checked="1">
+      {#if $caballosList.lista.length > 0}
+      {#each $caballosList.lista as caballo}
       <div class="race__trifecta " bis_skin_checked="1"><input class="chk trifecta_1" type="checkbox" ><input class="chk trifecta_2" type="checkbox" ><input class="chk trifecta_3" type="checkbox" >
         
   <div class="race__nrace" bis_skin_checked="1">
     <img class="r-1" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">1</p>
+    <p class="race__num">{caballo.np}</p>
   </div>
-  <div bis_skin_checked="1">Kazar Forez</div>
+  <div bis_skin_checked="1">{caballo.cnombre}</div>
   <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:168</div>
-  <div bis_skin_checked="1">7/1</div>
+  <div bis_skin_checked="1">{caballo.peso}</div>
+  <div bis_skin_checked="1">{caballo.ml}</div>
   <div bis_skin_checked="1">BL</div>
       </div>
-      <div class="race__trifecta " bis_skin_checked="1"><input class="chk trifecta_1" type="checkbox" ><input class="chk trifecta_2" type="checkbox" ><input class="chk trifecta_3" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-2" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">2</p>
-  </div>
-  <div bis_skin_checked="1">Balcomie Breeze</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:166</div>
-  <div bis_skin_checked="1">6/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__trifecta " bis_skin_checked="1"><input class="chk trifecta_1" type="checkbox" ><input class="chk trifecta_2" type="checkbox" ><input class="chk trifecta_3" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-3" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">3</p>
-  </div>
-  <div bis_skin_checked="1">Lahire</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:164</div>
-  <div bis_skin_checked="1">1/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__trifecta " bis_skin_checked="1"><input class="chk trifecta_1" type="checkbox" ><input class="chk trifecta_2" type="checkbox" ><input class="chk trifecta_3" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-4" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">4</p>
-  </div>
-  <div bis_skin_checked="1">Little Pi</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:162</div>
-  <div bis_skin_checked="1">7/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__trifecta " bis_skin_checked="1"><input class="chk trifecta_1" type="checkbox" ><input class="chk trifecta_2" type="checkbox" ><input class="chk trifecta_3" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-5" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">5</p>
-  </div>
-  <div bis_skin_checked="1">Kellies Dream</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:158</div>
-  <div bis_skin_checked="1">8/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__trifecta " bis_skin_checked="1"><input class="chk trifecta_1" type="checkbox" ><input class="chk trifecta_2" type="checkbox" ><input class="chk trifecta_3" type="checkbox">
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-6" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">6</p>
-  </div>
-  <div bis_skin_checked="1">Kuma Beach</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:149</div>
-  <div bis_skin_checked="1">20/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__trifecta " bis_skin_checked="1"><input class="chk trifecta_1" type="checkbox" ><input class="chk trifecta_2" type="checkbox" ><input class="chk trifecta_3" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-7" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">7</p>
-  </div>
-  <div bis_skin_checked="1">Admiral Fitz</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:144</div>
-  <div bis_skin_checked="1">10/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__trifecta " bis_skin_checked="1"><input class="chk trifecta_1" type="checkbox" ><input class="chk trifecta_2" type="checkbox" ><input class="chk trifecta_3" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-8" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">8</p>
-  </div>
-  <div bis_skin_checked="1">Inoue</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:142</div>
-  <div bis_skin_checked="1">30/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div></div>
+      {/each}
+      {/if}
+</div>
             </div>
             <div class="tab-pane fade" id="pills-superfecta" bis_skin_checked="1">
               <div class="race__superfecta titles" bis_skin_checked="1">
@@ -803,102 +649,23 @@ onMount(async() =>{
                 <div class="" bis_skin_checked="1">M/L</div>
               </div>
               <div class="race__container-races" id="cab_superfecta" bis_skin_checked="1">
+      {#if $caballosList.lista.length > 0}
+      {#each $caballosList.lista as caballo}
       <div class="race__superfecta " bis_skin_checked="1"><input class="chk superfecta_1" type="checkbox" ><input class="chk superfecta_2" type="checkbox" ><input class="chk superfecta_3" type="checkbox" ><input class="chk superfecta_4" type="checkbox" >
         
   <div class="race__nrace" bis_skin_checked="1">
     <img class="r-1" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">1</p>
+    <p class="race__num">{caballo.np}</p>
   </div>
-  <div bis_skin_checked="1">Kazar Forez</div>
+  <div bis_skin_checked="1">{caballo.cnombre}</div>
   <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:168</div>
-  <div bis_skin_checked="1">7/1</div>
+  <div bis_skin_checked="1">{caballo.peso}</div>
+  <div bis_skin_checked="1">{caballo.ml}</div>
   <div bis_skin_checked="1">BL</div>
       </div>
-      <div class="race__superfecta " bis_skin_checked="1"><input class="chk superfecta_1" type="checkbox" ><input class="chk superfecta_2" type="checkbox" ><input class="chk superfecta_3" type="checkbox" ><input class="chk superfecta_4" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-2" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">2</p>
-  </div>
-  <div bis_skin_checked="1">Balcomie Breeze</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:166</div>
-  <div bis_skin_checked="1">6/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__superfecta " bis_skin_checked="1"><input class="chk superfecta_1" type="checkbox" ><input class="chk superfecta_2" type="checkbox" ><input class="chk superfecta_3" type="checkbox" ><input class="chk superfecta_4" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-3" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">3</p>
-  </div>
-  <div bis_skin_checked="1">Lahire</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:164</div>
-  <div bis_skin_checked="1">1/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__superfecta " bis_skin_checked="1"><input class="chk superfecta_1" type="checkbox" ><input class="chk superfecta_2" type="checkbox" ><input class="chk superfecta_3" type="checkbox" ><input class="chk superfecta_4" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-4" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">4</p>
-  </div>
-  <div bis_skin_checked="1">Little Pi</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:162</div>
-  <div bis_skin_checked="1">7/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__superfecta " bis_skin_checked="1"><input class="chk superfecta_1" type="checkbox" ><input class="chk superfecta_2" type="checkbox" ><input class="chk superfecta_3" type="checkbox" ><input class="chk superfecta_4" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-5" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">5</p>
-  </div>
-  <div bis_skin_checked="1">Kellies Dream</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:158</div>
-  <div bis_skin_checked="1">8/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__superfecta " bis_skin_checked="1"><input class="chk superfecta_1" type="checkbox" ><input class="chk superfecta_2" type="checkbox" ><input class="chk superfecta_3" type="checkbox" ><input class="chk superfecta_4" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-6" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">6</p>
-  </div>
-  <div bis_skin_checked="1">Kuma Beach</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:149</div>
-  <div bis_skin_checked="1">20/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__superfecta " bis_skin_checked="1"><input class="chk superfecta_1" type="checkbox" ><input class="chk superfecta_2" type="checkbox" ><input class="chk superfecta_3" type="checkbox" ><input class="chk superfecta_4" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-7" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">7</p>
-  </div>
-  <div bis_skin_checked="1">Admiral Fitz</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:144</div>
-  <div bis_skin_checked="1">10/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div>
-      <div class="race__superfecta " bis_skin_checked="1"><input class="chk superfecta_1" type="checkbox" ><input class="chk superfecta_2" type="checkbox" ><input class="chk superfecta_3" type="checkbox" ><input class="chk superfecta_4" type="checkbox" >
-        
-  <div class="race__nrace" bis_skin_checked="1">
-    <img class="r-8" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
-    <p class="race__num">8</p>
-  </div>
-  <div bis_skin_checked="1">Inoue</div>
-  <div bis_skin_checked="1">-</div>
-  <div bis_skin_checked="1">LB:142</div>
-  <div bis_skin_checked="1">30/1</div>
-  <div bis_skin_checked="1">BL</div>
-      </div></div>
+      {/each}
+      {/if}
+</div>
             </div>
             <div class="tab-pane fade" id="pills-winifjo" bis_skin_checked="1">pills-winifjo</div>
             <div class="tab-pane fade" id="pills-pick2" bis_skin_checked="1">

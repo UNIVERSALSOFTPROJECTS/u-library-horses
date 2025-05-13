@@ -27,6 +27,18 @@ let mensajePendiente = {
   cr: null,
 };
 
+// necows.js (añade o sustituye esta función)
+export function seleccionarCarreraPorNP(np) {
+  // 1) Busca en el cache de hipódromos
+  console.log("🔍 Buscando carrera por NP:", np);
+  
+
+  mensajePendiente.cr  = np;
+
+  console.log("mensajePendiente CR actualizado",  mensajePendiente.cr);
+
+  enviarMensajeAlWebSocket();
+}
 // Función exportada para selección del usuario
 export function enviarDatosSeleccion(id_pista, track) {
   carreraSeleccionada = { id_pista, track };
