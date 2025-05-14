@@ -2,7 +2,8 @@ import { get } from "svelte/store";
 import { userSession } from "../lib/api/stores/userLogin.js";
 import { captureRejectionSymbol } from "ws";
 import { caballos } from "../lib/api/stores/caballosStore.js";
-
+import { carrerasRetiradas } from "../lib/api/stores/carrerasRetiradas.js";
+import { getCarrerasRetiradas } from "../lib/api/services/necoBuscarRetiradosCarreras.service.js";
 const ws = new WebSocket("wss://bws2.universalrace.net/ws");
 
 let hipodromosCache = [];
@@ -67,6 +68,21 @@ export function enviarDatosSeleccion(id_pista, track) {
     }
     rcarreraAsignada = true;
     console.log("⚡ rcarrera asignado desde cache:", carrera.rcarrera);
+    
+    //FILTRO PARA CARRERAS RETIRADAS DENTRO DEL WS
+    if(carrera.idcrr && session?.tp_usuario)
+    {
+      getCarrerasRetiradas(token, Number(carrera.idcrr), session.tp_usuario)
+      .then((retirados) => {
+        carrerasRetiradas.set(retirados);
+        console.log("🏇 Carreras retiradas:", retirados);
+      })
+      .catch((error) => {
+        console.error("❌ Error al obtener carreras retiradas:", error);
+        carrerasRetiradas.set([]);
+      });
+    }
+    
     enviarMensajeAlWebSocket();
   }
 }

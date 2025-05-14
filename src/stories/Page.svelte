@@ -15,8 +15,10 @@
   //let startICR: number = null;
   //CONEXION DEL WEBSOCKET DESDE EL FRONTEND
   import { enviarDatosSeleccion, seleccionarCarreraPorNP } from './necows.js';
-  //RETORNO DE HIPODROMOS ACTIVOS DESDE NECO
+  //SERVICES
+  import { carrerasRetiradas } from '../lib/api/stores/carrerasRetiradas.js';
   import { getHipodromosPorTipo } from '../lib/api/services/necoHipodromosPorTipo.service.js';
+  import { getCarrerasRetiradas } from '../lib/api/services/necoBuscarRetiradosCarreras.service.js';
   import type { HipodromosPorTipoResponse } from '../lib/api/models/NecoHipodromosPorTipoResponse.js';
   import { userSession } from '../lib/api/stores/userLogin.js';
   import { onMount } from 'svelte';
