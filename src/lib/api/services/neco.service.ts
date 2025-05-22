@@ -1,7 +1,7 @@
 import type { NecoLoginResponse } from "../models/NecoLoginResponse.js";
 
 export async function loginWithCredential(usr: string, pass: string): Promise<NecoLoginResponse> {
-    const res = await fetch("http://localhost:5000/bff/login-dynamic", {
+    const res = await fetch("http://localhost:5000/bff/login", {
         method: "GET",
         headers: {
             usr,
