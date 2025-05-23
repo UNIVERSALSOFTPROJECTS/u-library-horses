@@ -111,18 +111,17 @@ import { exactaStore } from '../lib/api/stores/exactaStore.js';
 
 function seleccionarCaballo(caballoData: any, orden: number, posicion: 1 | 2, track: string){
   const caballo: CaballosSeleccionado = {
-    id_caballo: caballoData.id_caballo,
+    id_caballo: caballoData.id,
     orden_caballo: orden,
     posicion: posicion,
     track: caballoData.track,
   };
-
   exactaStore.toggleCaballo(caballo, posicion);
 }
 
 function estaMarcado(caballoData: any, orden: number, posicion: 1 | 2, track:string): boolean{
   return exactaStore.estaSeleccionado({
-    id_caballo: caballoData.id_caballo,
+    id_caballo: caballoData.id,
     orden_caballo: orden,
     posicion: posicion,
     track: track,
