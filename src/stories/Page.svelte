@@ -101,6 +101,33 @@ onMount(async() =>{
   }
   console.log("Caballos del ws dende Page.svelte: ", caballos);
 })
+
+function mu_slip_ex(idc:string, cbn: number, p: number, track: string){
+  console.log({idc, cbn, p, track});
+}
+
+import type { CaballosSeleccionado } from '../lib/api/models/ApuestaExactaModel.js';
+import { exactaStore } from '../lib/api/stores/exactaStore.js';
+
+function seleccionarCaballo(caballoData: any, orden: number, posicion: 1 | 2, track: string){
+  const caballo: CaballosSeleccionado = {
+    id_caballo: caballoData.id_caballo,
+    orden_caballo: orden,
+    posicion: posicion,
+    track: caballoData.track,
+  };
+
+  exactaStore.toggleCaballo(caballo, posicion);
+}
+
+function estaMarcado(caballoData: any, orden: number, posicion: 1 | 2, track:string): boolean{
+  return exactaStore.estaSeleccionado({
+    id_caballo: caballoData.id_caballo,
+    orden_caballo: orden,
+    posicion: posicion,
+    track: track,
+  }, posicion)
+}
 </script>
 <NavbarComponent></NavbarComponent>
 <div class="uhorses" >
@@ -555,14 +582,14 @@ onMount(async() =>{
               </div>
               <div class="race__container-races" id="cab_wps" >
       {#if $caballosList.lista.length > 0}
-      {#each $caballosList.lista as caballo}
+      {#each $caballosList.lista as caballo, index}
       <div class="race__wps" >
         <input class="ipt t_ph-win cls_w" placeholder="Win" type="number" id="_w_10780859_" autocomplete="off" data-raider="10780859,w,1,CAB,Kazar Forez,WIN" style="display: block;">
         <input class="ipt t_ph-place cls_p" placeholder="Place" type="number" id="_p_10780859_" autocomplete="off" data-raider="10780859,p,1,CAB,Kazar Forez,PLACE" style="display: block;">
         <input class="ipt t_ph-show cls_s" placeholder="Show" type="number" id="_s_10780859_" autocomplete="off" data-raider="10780859,s,1,CAB,Kazar Forez,SHOW" style="display: none;">
         
   <div class="race__nrace" >
-    <img class="r-1" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
+    <img class="r-{index + 1}" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
     <p class="race__num">{caballo.np}</p>
   </div>
   <div>{caballo.cnombre}</div>
@@ -589,8 +616,9 @@ onMount(async() =>{
               </div>
               <div class="race__container-races" id="cab_exacta" bis_skin_checked="1">
       {#if $caballosList.lista.length > 0}
-      {#each $caballosList.lista as caballo}
-      <div class="race__exacta " bis_skin_checked="1"><input class="chk exacta_1" type="checkbox" ><input class="chk exacta_2" type="checkbox" >
+      {#each $caballosList.lista as caballo, idx}
+      <div class="race__exacta " bis_skin_checked="1"><input class="chk exacta_1" type="checkbox" checked={estaMarcado(caballo, idx + 1, 1, caballo.track)} on:click={() => seleccionarCaballo(caballo, idx + 1, 1, caballo.track)}> 
+                                                      <input class="chk exacta_2" type="checkbox" checked={estaMarcado(caballo, idx + 1, 2, caballo.track)} on:click={() => seleccionarCaballo(caballo, idx + 1, 2, caballo.track)}>
         
   <div class="race__nrace" bis_skin_checked="1">
     <img class="r-1" src="https://d2zzz5z45zl95g.cloudfront.net/usr_imgs/icons/shield.svg">
